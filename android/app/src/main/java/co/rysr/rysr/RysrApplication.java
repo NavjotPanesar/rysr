@@ -1,0 +1,40 @@
+package co.rysr.rysr;
+
+import android.app.Application;
+import android.content.res.Configuration;
+
+import com.firebase.client.Firebase;
+
+/**
+ * Created by alvin on 19/09/15.
+ */
+public class RysrApplication extends Application{
+        private RysrApplication sInstance;
+
+        private RysrApplication getInstance(){
+            return sInstance;
+        }
+
+        @Override
+        public void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+        }
+
+        @Override
+        public void onCreate() {
+            super.onCreate();
+            sInstance = this;
+            Firebase.setAndroidContext(this);
+        }
+
+        @Override
+        public void onLowMemory() {
+            super.onLowMemory();
+        }
+
+        @Override
+        public void onTerminate() {
+            super.onTerminate();
+        }
+
+}
