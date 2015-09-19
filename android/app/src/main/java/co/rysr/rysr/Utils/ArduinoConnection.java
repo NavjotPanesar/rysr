@@ -59,6 +59,9 @@ public class ArduinoConnection {
                 }
             }
             else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
+                if(listener != null){
+                    listener.onDisconnected();
+                }
                 writeLine("Disconnected!");
             }
             else {
@@ -104,7 +107,9 @@ public class ArduinoConnection {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
             writeData("Received: " + characteristic.getStringValue(0));
-            listener.onDataRecieved(characteristic.getStringValue(0));
+            if(listener != null){
+                listener.onDataRecieved(characteristic.getStringValue(0));
+            }
         }
     };
 
