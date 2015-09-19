@@ -7,6 +7,23 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Required permissions for all integrations -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+    <!-- Required to use Drop-In -->
+    <activity android:name="com.braintreepayments.api.dropin.BraintreePaymentActivity" />
+
+    <!-- Required to use PayPal -->
+    <activity android:name="com.paypal.android.sdk.payments.PayPalProfileSharingActivity" />
+    <activity android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity" />
+    <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity" />
+    <activity android:name="com.paypal.android.sdk.payments.LoginActivity" />
+    <activity android:name="com.paypal.android.sdk.payments.PayPalTouchActivity"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    <service android:name="com.paypal.android.sdk.payments.PayPalService"
+        android:exported="false" />
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
