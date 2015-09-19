@@ -5,12 +5,18 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SplashActivity extends AppCompatActivity {
+import co.rysr.rysr.Activity.BaseActionBarActivity;
+
+public class SplashActivity extends BaseActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_splash;
     }
 
     @Override
