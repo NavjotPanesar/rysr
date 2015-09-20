@@ -1,5 +1,6 @@
 package co.rysr.rysr;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,8 @@ import com.github.paolorotolo.appintro.AppIntroFragment;
 import java.util.logging.LogRecord;
 
 import co.rysr.rysr.Utils.PaymentUtil;
+import co.rysr.rysr.Activity.BaseActionBarActivity;
+import co.rysr.rysr.Activity.MainActivity;
 import co.rysr.rysr.intro.CharitySelectFragment;
 import co.rysr.rysr.intro.LogoFragment;
 import co.rysr.rysr.intro.PaymentSetupFragment;
@@ -22,6 +25,7 @@ public class SplashActivity extends AppIntro implements PaymentSetupFragment.OnF
     @Override
     public void init(Bundle savedInstanceState) {
 
+        startActivity(new Intent(this, MainActivity.class));
         // Add your slide's fragments here
         // AppIntro will automatically generate the dots indicator and buttons.
         addSlide(LogoFragment.newInstance());
