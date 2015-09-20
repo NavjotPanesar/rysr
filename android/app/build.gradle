@@ -43,4 +43,5 @@ dependencies {
     compile 'com.github.paolorotolo:appintro:3.2.0'
     compile 'com.firebase:firebase-client-android:2.3.1+'
     compile 'com.braintreepayments.api:braintree:1.+'
+    compile 'com.github.castorflex.verticalviewpager:library:19.0.1'
 }

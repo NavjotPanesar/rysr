@@ -13,6 +13,7 @@ import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 
 import co.rysr.rysr.Activity.BaseActionBarActivity;
+import co.rysr.rysr.intro.CharitySelectFragment;
 import co.rysr.rysr.intro.LogoFragment;
 
 public class SplashActivity extends AppIntro {
@@ -25,7 +26,7 @@ public class SplashActivity extends AppIntro {
         // Add your slide's fragments here
         // AppIntro will automatically generate the dots indicator and buttons.
         addSlide(LogoFragment.newInstance());
-//        addSlide(second_fragment);
+        addSlide(CharitySelectFragment.newInstance());
 //        addSlide(third_fragment);
 //        addSlide(fourth_fragment);
 
