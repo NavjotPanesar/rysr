@@ -2,15 +2,22 @@ package co.rysr.rysr;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 
+
+import java.util.logging.LogRecord;
+
+import co.rysr.rysr.Utils.PaymentUtil;
 import co.rysr.rysr.intro.CharitySelectFragment;
 import co.rysr.rysr.intro.LogoFragment;
 import co.rysr.rysr.intro.PaymentSetupFragment;
 
-public class SplashActivity extends AppIntro {
+public class SplashActivity extends AppIntro implements PaymentSetupFragment.OnFragmentInteractionListener {
 
     @Override
     public void init(Bundle savedInstanceState) {
@@ -47,4 +54,23 @@ public class SplashActivity extends AppIntro {
     public void onDonePressed() {
         // Do something when users tap on Done button.
     }
+
+    @Override
+    public void onPaymentSetupComplete() {
+        Toast.makeText(this, "Payment Saved!", Toast.LENGTH_SHORT).show();
+    }
+
+//    /**
+//     * Advance the intro
+//     */
+//    private void nextClick() {
+//        Handler mHandler = new Handler();
+//        mHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                final ImageView nextButton = (ImageView) findViewById(R.id.next);
+//                nextButton.performClick();
+//            }
+//        }, 2000);
+//    }
 }

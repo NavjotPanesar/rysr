@@ -2,6 +2,7 @@ package co.rysr.rysr;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import android.util.Log;
 
 import com.firebase.client.Firebase;
 
