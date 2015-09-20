@@ -2,8 +2,11 @@ package co.rysr.rysr;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import android.util.Log;
 
 import com.firebase.client.Firebase;
+
+import co.rysr.rysr.Utils.PaymentUtil;
 
 /**
  * Created by alvin on 19/09/15.
@@ -25,6 +28,7 @@ public class RysrApplication extends Application{
             super.onCreate();
             sInstance = this;
             Firebase.setAndroidContext(this);
+            PaymentUtil.init(this);
         }
 
         @Override
