@@ -2,6 +2,7 @@ package co.rysr.rysr.Utils;
 
 import com.firebase.client.Firebase;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,11 +36,17 @@ public class FireBaseUtil {
 
     }
 
-    public void addSleepData(String userId, Map<Integer,Integer> sleepData){
+    // Date should be ddmmyyyy
+    public void addSleepData(String userId, Map<String,String> sleepData, String date){
         // Go to the user's data table
-        Firebase thisUserTable = this.rootRef.child("users").child(userId);
+        Firebase thisUserTable = this.rootRef.child("users").child(userId).child(String.valueOf(date));
         // Insert sleep data
         thisUserTable.setValue(sleepData);
+
+    }
+
+    //TODO: Retrieve accelerometer data
+    public void getSleepData(String userId){
 
     }
 
