@@ -9,9 +9,9 @@ import com.firebase.client.Firebase;
  * Created by alvin on 19/09/15.
  */
 public class RysrApplication extends Application{
-        private RysrApplication sInstance;
+        private static RysrApplication sInstance;
 
-        private RysrApplication getInstance(){
+        public static RysrApplication getInstance(){
             return sInstance;
         }
 

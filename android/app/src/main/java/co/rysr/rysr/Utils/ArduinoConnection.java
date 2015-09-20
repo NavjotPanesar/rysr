@@ -10,19 +10,25 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import co.rysr.rysr.Interface.BluetoothRecievedListener;
+import co.rysr.rysr.RysrApplication;
 
 /**
  * Created by Navjot on 9/19/2015.
  */
 public class ArduinoConnection {
+    private static BluetoothAdapter adapter;
+    private static BluetoothRecievedListener sListener;
+
     // UUIDs for UAT service and associated characteristics.
     public static UUID UART_UUID = UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
     public static UUID TX_UUID = UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -30,23 +36,42 @@ public class ArduinoConnection {
     // UUID for the BTLE client characteristic which is necessary for notifications.
     public static UUID CLIENT_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
 
-    // BTLE state
-    private BluetoothAdapter adapter;
-    private BluetoothGatt gatt;
-    private BluetoothGattCharacteristic tx;
-    private BluetoothGattCharacteristic rx;
+    public static Activity sActivity; // yeah, I know what im doing. deal with it mate.
 
-    private Context appContext;
-    private Activity activity;
-    private BluetoothRecievedListener listener;
-    public ArduinoConnection(Activity activity, BluetoothRecievedListener listener){
-        this.activity = activity;
-        this.appContext = activity.getApplicationContext();
-        this.listener = listener;
+    // BTLE state
+    private static BluetoothGatt gatt;
+    private static BluetoothGattCharacteristic tx;
+    private static BluetoothGattCharacteristic rx;
+
+    public static void onCreate(){
+        adapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+    public static void init(Activity activity, BluetoothRecievedListener listener){
+        sActivity = activity;
+        sListener = listener;
+    }
+
+    public static void onResume(){
+        // Scan for all BTLE devices.
+        // The first one with the UART service will be chosen--see the code in the scanCallback.
+        writeLine("Scanning for devices...");
+        adapter.startLeScan(scanCallback);
+    }
+
+    public static void onStop(){
+        if (gatt != null) {
+            // For better reliability be careful to disconnect and close the connection.
+            gatt.disconnect();
+            gatt.close();
+            gatt = null;
+            tx = null;
+            rx = null;
+        }
     }
 
     // Main BTLE device callback where much of the logic occurs.
-    private BluetoothGattCallback callback = new BluetoothGattCallback() {
+    private static BluetoothGattCallback callback = new BluetoothGattCallback() {
         // Called whenever the device connection state changes, i.e. from disconnected to connected.
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -59,10 +84,8 @@ public class ArduinoConnection {
                 }
             }
             else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
-                if(listener != null){
-                    listener.onDisconnected();
-                }
                 writeLine("Disconnected!");
+                sListener.onDisconnected();
             }
             else {
                 writeLine("Connection state changed.  New state: " + newState);
@@ -106,61 +129,33 @@ public class ArduinoConnection {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            writeData("Received: " + characteristic.getStringValue(0));
-            if(listener != null){
-                listener.onDataRecieved(characteristic.getStringValue(0));
-            }
+            writeLine("Received: " + characteristic.getStringValue(0));
+            sListener.onDataRecieved(characteristic.getStringValue(0));
         }
     };
 
-    // BTLE device scanning callback.
-    private BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
-        // Called when a device is found.
-        @Override
-        public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
-            writeLine("Found device: " + bluetoothDevice.getAddress());
-            // Check if the device has the UART service.
-            if (parseUUIDs(bytes).contains(UART_UUID)) {
-                // Found a device, stop the scan.
-                adapter.stopLeScan(scanCallback);
-                writeLine("Found UART service!");
-                // Connect to the device.
-                // Control flow will now go to the callback functions when BTLE events occur.
-                gatt = bluetoothDevice.connectGatt(appContext, false, callback);
-            }
+    // Handler for mouse click on the send button.
+    public void sendClick(View view) {
+        String message = "";
+        if (tx == null || message == null || message.isEmpty()) {
+            // Do nothing if there is no device or message to send.
+            return;
         }
-    };
-
-    // OnCreate, called once to initialize the activity.
-    public void onCreate() {
-        adapter = BluetoothAdapter.getDefaultAdapter();
-    }
-
-    // OnResume, called right before UI is displayed.  Start the BTLE connection.
-    public void onResume() {
-        // Scan for all BTLE devices.
-        // The first one with the UART service will be chosen--see the code in the scanCallback.
-        writeLine("Scanning for devices...");
-        adapter.startLeScan(scanCallback);
-    }
-
-    // OnStop, called right before the activity loses foreground focus.  Close the BTLE connection.
-    public void onStop() {
-        if (gatt != null) {
-            // For better reliability be careful to disconnect and close the connection.
-            gatt.disconnect();
-            gatt.close();
-            gatt = null;
-            tx = null;
-            rx = null;
+        // Update TX characteristic value.  Note the setValue overload that takes a byte array must be used.
+        tx.setValue(message.getBytes(Charset.forName("UTF-8")));
+        if (gatt.writeCharacteristic(tx)) {
+            writeLine("Sent: " + message);
+        }
+        else {
+            writeLine("Couldn't write TX characteristic!");
         }
     }
 
-    //w rite some text to the messages text view.
+    // Write some text to the messages text view.
     // Care is taken to do this on the main UI thread so writeLine can be called
     // from any thread (like the BTLE callback).
-    private void writeLine(final CharSequence text) {
-        activity.runOnUiThread(new Runnable() {
+    private static void writeLine(final CharSequence text) {
+        sActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Log.d("DANK", "DANK: " + text);
@@ -168,19 +163,10 @@ public class ArduinoConnection {
         });
     }
 
-    private void writeData(final CharSequence text) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("DATA", "DATA: " + text);
-            }
-        });
-    }
-
     // Filtering by custom UUID is broken in Android 4.3 and 4.4, see:
     //   http://stackoverflow.com/questions/18019161/startlescan-with-128-bit-uuids-doesnt-work-on-native-android-ble-implementation?noredirect=1#comment27879874_18019161
     // This is a workaround function from the SO thread to manually parse advertisement data.
-    private List<UUID> parseUUIDs(final byte[] advertisedData) {
+    private static List<UUID> parseUUIDs(final byte[] advertisedData) {
         List<UUID> uuids = new ArrayList<UUID>();
 
         int offset = 0;
@@ -229,4 +215,23 @@ public class ArduinoConnection {
         }
         return uuids;
     }
+
+    // BTLE device scanning callback.
+    private static BluetoothAdapter.LeScanCallback scanCallback = new BluetoothAdapter.LeScanCallback() {
+        // Called when a device is found.
+        @Override
+        public void onLeScan(BluetoothDevice bluetoothDevice, int i, byte[] bytes) {
+            writeLine("Found device: " + bluetoothDevice.getAddress());
+            // Check if the device has the UART service.
+            if (parseUUIDs(bytes).contains(UART_UUID)) {
+                // Found a device, stop the scan.
+                adapter.stopLeScan(scanCallback);
+                writeLine("Found UART service!");
+                // Connect to the device.
+                // Control flow will now go to the callback functions when BTLE events occur.
+                gatt = bluetoothDevice.connectGatt(RysrApplication.getInstance(), false, callback);
+            }
+        }
+    };
+
 }
