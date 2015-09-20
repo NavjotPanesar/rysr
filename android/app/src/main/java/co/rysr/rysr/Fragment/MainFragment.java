@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,61 +44,67 @@ public class MainFragment extends android.support.v4.app.Fragment {
         final ArrayList<Entry> yVals = new ArrayList<>();
         final LineDataSet data = new LineDataSet(yVals, "X-axis");
         final ArrayList<String> xVals = new ArrayList<String>();
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 30; i++) {
             xVals.add(String.valueOf(i));
         }
         final LineData finalData = new LineData(xVals, data);
+
+
+        addEntry(-12, 0);
+        addEntry(12, 0);
         chart.setData(finalData);
         chart.invalidate();
         chart.animateXY(1000, 1000);
 
+        ArduinoConnection.init(getActivity(), new BluetoothRecievedListener() {
 
-        feedMultiple();
+            float[] dataPoint = new float[3];
+            int dataPtr = 0;
+
+            @Override
+            public void onDataRecieved(CharSequence data) {
+                if (dataPtr >= 3) {
+                    dataPtr = 0;
+                    //addEntry(0, dataPoint[0]);
+                    addEntry(0, dataPoint[1]);
+                    //addEntry(0, dataPoint[2]);
+                }
+                int dataInt = Integer.parseInt(data.toString());
+                float dataFloat = dataInt / 100;
+                if (dataPoint[(dataPtr == 0) ? 2 : (dataPtr - 1)] != dataFloat) {
+                    dataPoint[dataPtr] = dataFloat;
+                    dataPtr++;
+                }
+                Log.d("SUP", "SUP: " + data);
+            }
+
+            @Override
+            public void onDisconnected() {
+
+            }
+        });
+
+        ArduinoConnection.onCreate();
 
         return rootView;
     }
+
 
     public android.support.v4.app.Fragment newInstance(){
         return new MainFragment();
     }
 
-    private void feedMultiple() {
+    private void addEntry(int dataIndex, float point) {
 
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                for (int i = 0; i < 50000; i++) {
-
-                    getActivity().runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            addEntry();
-                        }
-                    });
-
-                    try {
-                        Thread.sleep(35);
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
-
-    private void addEntry() {
-
+        point = Math.abs(point);
         LineData data = chart.getData();
 
         if (data != null) {
 
-            LineDataSet set = data.getDataSetByIndex(0);
+            LineDataSet set = data.getDataSetByIndex(dataIndex);
 
             data.addXValue(String.valueOf(counter));
-            data.addEntry(new Entry((float) (Math.random() * 40) + 30f, set.getEntryCount()), 0);
+            data.addEntry(new Entry(point, set.getEntryCount()), 0);
 
             // let the chart know it's data has changed
             chart.notifyDataSetChanged();
@@ -127,13 +134,17 @@ public class MainFragment extends android.support.v4.app.Fragment {
         }
     };
 
+    // OnResume, called right before UI is displayed.  Start the BTLE connection.
     @Override
     public void onResume() {
         super.onResume();
+        ArduinoConnection.onResume();
     }
 
+    // OnStop, called right before the activity loses foreground focus.  Close the BTLE connection.
     @Override
     public void onStop() {
         super.onStop();
+        ArduinoConnection.onStop();
     }
 }

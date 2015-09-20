@@ -7,11 +7,16 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar_custom"/>
 
+    <Button
+        android:id="@+id/wake_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="wake up!"/>
+
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar">
+        android:layout_height="match_parent">
     </FrameLayout>
 
 </LinearLayout>

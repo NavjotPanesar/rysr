@@ -135,8 +135,7 @@ public class ArduinoConnection {
     };
 
     // Handler for mouse click on the send button.
-    public void sendClick(View view) {
-        String message = "";
+    public static void sendClick(String message) {
         if (tx == null || message == null || message.isEmpty()) {
             // Do nothing if there is no device or message to send.
             return;
@@ -154,7 +153,7 @@ public class ArduinoConnection {
     // Write some text to the messages text view.
     // Care is taken to do this on the main UI thread so writeLine can be called
     // from any thread (like the BTLE callback).
-    private static void writeLine(final CharSequence text) {
+    public static void writeLine(final CharSequence text) {
         sActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
