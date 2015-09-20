@@ -45,5 +45,10 @@ public class FireBaseUtil {
 
     }
 
+    //TODO: Retrieve accelerometer data
+    public void getSleepData(String userId){
+
+    }
+
 
 }
