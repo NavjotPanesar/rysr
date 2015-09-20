@@ -25,7 +25,6 @@ public class SplashActivity extends AppIntro implements PaymentSetupFragment.OnF
     @Override
     public void init(Bundle savedInstanceState) {
 
-        startActivity(new Intent(this, MainActivity.class));
         // Add your slide's fragments here
         // AppIntro will automatically generate the dots indicator and buttons.
         addSlide(LogoFragment.newInstance());
@@ -62,6 +61,8 @@ public class SplashActivity extends AppIntro implements PaymentSetupFragment.OnF
     @Override
     public void onPaymentSetupComplete() {
         Toast.makeText(this, "Payment Saved!", Toast.LENGTH_SHORT).show();
+
+        startActivity(new Intent(this, MainActivity.class));
     }
 
 //    /**

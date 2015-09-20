@@ -38,6 +38,8 @@ public class ArduinoConnection {
 
     public static Activity sActivity; // yeah, I know what im doing. deal with it mate.
 
+    public static boolean isDisconnected = false;
+
     // BTLE state
     private static BluetoothGatt gatt;
     private static BluetoothGattCharacteristic tx;
@@ -82,9 +84,17 @@ public class ArduinoConnection {
                 if (!gatt.discoverServices()) {
                     writeLine("Failed to start discovering services!");
                 }
+                isDisconnected= false;
             }
             else if (newState == BluetoothGatt.STATE_DISCONNECTED) {
                 writeLine("Disconnected!");
+                sActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        isDisconnected = true;
+                    }
+                });
                 sListener.onDisconnected();
             }
             else {
@@ -126,11 +136,16 @@ public class ArduinoConnection {
         }
 
         // Called when a remote characteristic changes (like the RX characteristic).
+        String prevValue = "";
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            writeLine("Received: " + characteristic.getStringValue(0));
-            sListener.onDataRecieved(characteristic.getStringValue(0));
+            String newValue = characteristic.getStringValue(0);
+            if(!newValue.equals(prevValue)){
+                writeLine("Received: " + newValue);
+                sListener.onDataRecieved(newValue);
+                prevValue = newValue;
+            }
         }
     };
 

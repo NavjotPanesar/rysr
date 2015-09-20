@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -19,8 +20,10 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import co.rysr.rysr.Interface.BluetoothRecievedListener;
+import co.rysr.rysr.Interface.FSMListener;
 import co.rysr.rysr.R;
 import co.rysr.rysr.Utils.ArduinoConnection;
+import co.rysr.rysr.Utils.StateMachine;
 
 /**
  * Created by Navjot on 9/19/2015.
@@ -30,9 +33,15 @@ public class MainFragment extends android.support.v4.app.Fragment {
     @Bind(R.id.chart)
     LineChart chart;
 
+    @Bind(R.id.status)
+    TextView status;
+
+
     // ArduinoConnection ac;
 
     int counter = 5;
+
+    StateMachine stateMachine;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -58,23 +67,23 @@ public class MainFragment extends android.support.v4.app.Fragment {
 
         ArduinoConnection.init(getActivity(), new BluetoothRecievedListener() {
 
-            float[] dataPoint = new float[3];
+            ArrayList<Float> dataPoint = new ArrayList<Float>();
             int dataPtr = 0;
 
             @Override
             public void onDataRecieved(CharSequence data) {
-                if (dataPtr >= 3) {
-                    dataPtr = 0;
-                    //addEntry(0, dataPoint[0]);
-                    addEntry(0, dataPoint[1]);
-                    //addEntry(0, dataPoint[2]);
+                if (dataPoint.size() >= 3) {
+                    float[] dataPointArray = {dataPoint.get(0), dataPoint.get(1), dataPoint.get(2)};
+                    addDataPoint(dataPointArray);
+                    dataPoint.clear();
                 }
+
                 int dataInt = Integer.parseInt(data.toString());
                 float dataFloat = dataInt / 100;
-                if (dataPoint[(dataPtr == 0) ? 2 : (dataPtr - 1)] != dataFloat) {
-                    dataPoint[dataPtr] = dataFloat;
-                    dataPtr++;
+                if (dataPoint.size() == 0 || dataFloat != dataPoint.get(dataPoint.size() - 1)) {
+                    dataPoint.add(dataFloat);
                 }
+
                 Log.d("SUP", "SUP: " + data);
             }
 
@@ -85,8 +94,24 @@ public class MainFragment extends android.support.v4.app.Fragment {
         });
 
         ArduinoConnection.onCreate();
+        stateMachine= new StateMachine(new FSMListener() {
+            @Override
+            public void onStateChange(StateMachine.State state) {
+                status.setText(state.name());
+            }
+        });
 
         return rootView;
+    }
+
+    public void addDataPoint(float[] data){
+        //addEntry(0, data[0]);
+        addEntry(0, data[1]);
+        //addEntry(0, data[2]);
+
+        stateMachine.update(data);
+
+
     }
 
 
