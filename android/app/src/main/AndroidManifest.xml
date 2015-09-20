@@ -40,6 +40,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".Activity.MainActivity" />
+
     </application>
 
 </manifest>
