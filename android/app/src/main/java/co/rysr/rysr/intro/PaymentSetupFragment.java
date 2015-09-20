@@ -134,6 +134,7 @@ public class PaymentSetupFragment extends Fragment {
                 String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
                 PaymentUtil.getInstance().saveNonce(paymentMethodNonce);
                 Log.i("RYSR", paymentMethodNonce);
+                buttonSetup.setEnabled(false);
                 mListener.onPaymentSetupComplete();
                 //postNonceToServer(paymentMethodNonce);
             } else {
