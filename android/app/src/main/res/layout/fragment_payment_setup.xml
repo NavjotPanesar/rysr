@@ -1,16 +1,45 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="co.rysr.rysr.intro.PaymentSetupFragment">
+    android:layout_height="match_parent" tools:context="co.rysr.rysr.intro.PaymentSetupFragment"
+    android:background="@color/primary">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView android:layout_width="match_parent" android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Your Payment"
+        android:id="@+id/textView2"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="sans-serif-light"
+        android:focusableInTouchMode="false"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:textColor="#FFFFFF"
+        android:layout_gravity="center_horizontal|top"
+        android:gravity="center_horizontal"
+        android:paddingTop="40dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="20dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Setup Payment Method"
         android:id="@+id/button"
-        android:layout_gravity="center" />
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="100dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_payment"
+        android:adjustViewBounds="true"
+        android:layout_margin="50dp"
+        android:paddingBottom="40dp" />
 
 </FrameLayout>
