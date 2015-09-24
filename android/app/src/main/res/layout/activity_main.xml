@@ -11,7 +11,8 @@
         android:id="@+id/wake_up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="wake up!"/>
+        android:text="wake up!"
+        android:visibility="gone" />
 
     <FrameLayout
         android:id="@+id/container"

@@ -1,6 +1,8 @@
 package co.rysr.rysr.Fragment;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -98,10 +100,31 @@ public class MainFragment extends android.support.v4.app.Fragment {
             @Override
             public void onStateChange(StateMachine.State state) {
                 status.setText(state.name());
+                if(state == StateMachine.State.AWAKE){
+                    showDialog(1);
+                }
             }
         });
 
         return rootView;
+    }
+
+    private void showDialog(int a) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Morning!")
+                .setMessage("Looks like you took " + a + " minutes too long to get ready. That's $" + a + " for charity!")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                    }
+                })
+//                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        // do nothing
+//                    }
+//                })
+                .setIcon(R.drawable.ic_payment)
+                .show();
     }
 
     public void addDataPoint(float[] data){
